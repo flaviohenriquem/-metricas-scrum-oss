@@ -14,7 +14,9 @@ Notas metodológicas:
 - M21: mediana é a medida principal; média reportada como complemento
 - M22: denominador = issues fechadas (states: CLOSED)
 - M23: mediana é a medida principal; média reportada como complemento
-- M24: comentário humano = autor com __typename == User antes do fechamento
+- M24: sem interação humana = nenhum comentário registrado e nenhum
+  evento de rotulagem/fechamento atribuído a uma conta User nos
+  primeiros 5 eventos da timeline
 - M25: top 20 arquivos mais alterados, 300 commits recentes,
   excluindo dependências e lockfiles
 - M26: até 100 commits/ano (amostra própria, independente de M20/M21)
