@@ -1,4 +1,4 @@
-# -metricas-scrum-oss
+# metricas-scrum-oss
 
 # Métricas de Gestão para Equipes Ágeis — Scripts de Coleta
 
@@ -28,4 +28,24 @@ pip install -r requirements.txt
 Os scripts requerem um Personal Access Token (PAT) do GitHub com escopo
 `public_repo`. **Nunca inclua o token diretamente no código.**
 
-Crie um arquivo `.env` na raiz do repositório:
+Antes de executar qualquer script, defina a variável de ambiente
+`GITHUB_TOKEN` no terminal:
+
+```bash
+export GITHUB_TOKEN="seu_token_aqui"
+```
+
+No Windows (PowerShell):
+
+```powershell
+$env:GITHUB_TOKEN="seu_token_aqui"
+```
+
+Os scripts leem o token por meio de `os.environ.get("GITHUB_TOKEN", "")`.
+Se a variável não estiver definida, as requisições à API retornarão erro
+de autenticação (HTTP 401) ou ficarão sujeitas ao limite de taxa não
+autenticado do GitHub.
+
+---
+
+## Estrutura do repositório
