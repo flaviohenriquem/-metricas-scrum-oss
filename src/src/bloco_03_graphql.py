@@ -396,8 +396,9 @@ for repo_info in REPOS:
 # ─── M24 — Issues fechadas sem interação humana ───────────
 print("\n" + "="*50)
 print("M24 — Proporção de Issues Fechadas sem Interação Humana (%)")
-print("Interação humana = comentário com autor __typename == User antes do fechamento")
-print("Examina até 10 comentários por issue · até 100 issues/ano")
+print("Interação humana = ao menos um comentário registrado, ou evento de")
+print("rotulagem/fechamento atribuído a uma conta do tipo User (primeiros 5")
+print("eventos da timeline) · issues CLOSED · até 100/ano")
 print("="*50)
 for repo_info in REPOS:
     owner = repo_info["owner"]
@@ -406,27 +407,32 @@ for repo_info in REPOS:
     anos  = repo_info["anos"]
     print(f"\n{label}")
     for ano in anos:
-        since  = f"{ano}-01-01T00:00:00Z"
         cursor = None
-        total              = 0
-        sem_interacao_hum  = 0
-        coletados          = 0
+        total             = 0
+        sem_interacao_hum = 0
+        coletados         = 0
         while coletados < MAX_POR_ANO:
             after = f', after: "{cursor}"' if cursor else ""
             q = f"""
             {{
               repository(owner: "{owner}", name: "{repo}") {{
                 issues(first: 20{after}, states: [CLOSED],
-                       filterBy: {{since: "{since}"}},
                        orderBy: {{field: CREATED_AT, direction: ASC}}) {{
                   pageInfo {{ hasNextPage endCursor }}
                   nodes {{
                     createdAt
-                    closedAt
-                    comments(first: 10) {{
+                    comments(first: 1) {{
+                      totalCount
+                    }}
+                    timelineItems(first: 5, itemTypes: [LABELED_EVENT, CLOSED_EVENT]) {{
                       nodes {{
-                        createdAt
-                        author {{ __typename login }}
+                        __typename
+                        ... on LabeledEvent {{
+                          actor {{ login __typename }}
+                        }}
+                        ... on ClosedEvent {{
+                          actor {{ login __typename }}
+                        }}
                       }}
                     }}
                   }}
@@ -446,27 +452,16 @@ for repo_info in REPOS:
                 )
                 if criado.year != ano:
                     continue
-                fechado_em = None
-                if issue.get("closedAt"):
-                    fechado_em = datetime.fromisoformat(
-                        issue["closedAt"].replace("Z", "+00:00")
-                    )
-                tem_comentario_humano = False
-                for comentario in issue["comments"]["nodes"]:
-                    autor = comentario.get("author", {})
-                    if autor and autor.get("__typename") == "User":
-                        if fechado_em:
-                            data_coment = datetime.fromisoformat(
-                                comentario["createdAt"].replace("Z", "+00:00")
-                            )
-                            if data_coment <= fechado_em:
-                                tem_comentario_humano = True
-                                break
-                        else:
-                            tem_comentario_humano = True
-                            break
+                tem_comentario = issue["comments"]["totalCount"] > 0
+                tem_evento_humano = False
+                for item in issue["timelineItems"]["nodes"]:
+                    actor = item.get("actor")
+                    if actor and actor.get("__typename") == "User":
+                        tem_evento_humano = True
+                        break
+                sem_interacao = not tem_comentario and not tem_evento_humano
                 total += 1
-                if not tem_comentario_humano:
+                if sem_interacao:
                     sem_interacao_hum += 1
                 coletados += 1
                 if coletados >= MAX_POR_ANO:
@@ -476,7 +471,6 @@ for repo_info in REPOS:
             cursor = page_info["endCursor"]
         pct = sem_interacao_hum / total * 100 if total > 0 else 0
         print(f"  {ano}: {sem_interacao_hum}/{total} = {pct:.1f}%")
-
 # ─── M25 — Concentração de modificações por arquivo ───────
 print("\n" + "="*50)
 print("M25 — Concentração de Modificações por Arquivo")
