@@ -75,7 +75,7 @@ def coletar_arquivos_pr(owner, repo, numero):
 # ─── M02 e M03 ────────────────────────────────────────────
 print("="*50)
 print("M02 — Ciclo de Pull Request (dias, média)")
-print("M03 — Taxa de PRs Rejeitados (%)")
+print("M03 — Taxa de PRs fechados sem merge (%)")
 print("="*50)
 for repo_info in REPOS:
     owner = repo_info["owner"]
