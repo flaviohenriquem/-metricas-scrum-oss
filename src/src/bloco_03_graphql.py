@@ -17,8 +17,7 @@ Notas metodológicas:
 - M24: comentário humano = autor com __typename == User antes do fechamento
 - M25: top 20 arquivos mais alterados, 300 commits recentes,
   excluindo dependências e lockfiles
-- M26: até ~60 commits/ano (lotes de 20, limite de 50 no while)
-
+- M26: até 100 commits/ano (amostra própria, independente de M20/M21)
 Dissertação: Um Catálogo de Métricas de Gestão para Equipes Ágeis
 COMPMAT/UERJ, 2026
 """
@@ -45,7 +44,8 @@ REPOS = [
 ]
 
 MAX_POR_ANO  = 100
-MAX_COMMITS  = 50
+MAX_COMMITS  = 50      # usado em M20 e M21
+MAX_COMMITS_M26 = 100  # M26 usa amostra própria de até 100 commits/ano
 
 
 def graphql(query):
@@ -577,7 +577,7 @@ for repo_info in REPOS:
 print("\n" + "="*50)
 print("M26 — Frequência de Commits de Correção (%)")
 print("Termos: fix, bug, hotfix, patch, bugfix, revert (primeira linha da mensagem)")
-print("Amostra: até ~60 commits/ano (lotes de 20, limite de 50 no controle de iteração)")
+print("Amostra: até 100 commits/ano")
 print("="*50)
 TERMOS_CORRETIVOS = ["fix", "bug", "hotfix", "patch", "bugfix", "revert"]
 
@@ -593,7 +593,7 @@ for repo_info in REPOS:
         cursor = None
         mensagens = []
         coletados = 0
-        while coletados < MAX_COMMITS:
+ while coletados < MAX_COMMITS_M26:
             after = f', after: "{cursor}"' if cursor else ""
             q = f"""
             {{
@@ -621,7 +621,7 @@ for repo_info in REPOS:
                 break
             mensagens.extend([n["message"] for n in nodes])
             coletados += len(nodes)
-            if not page_info["hasNextPage"] or coletados >= MAX_COMMITS:
+            if not page_info["hasNextPage"] or coletados >= MAX_COMMITS_M26:
                 break
             cursor = page_info["endCursor"]
 
