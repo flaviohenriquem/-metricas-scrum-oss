@@ -61,8 +61,11 @@ COMPMAT/UERJ, 2026.
 
 ## Notas metodológicas
 
-- **M04**: calcula intervalo entre dias distintos com ao menos um commit,
-  não entre commits individuais.
+- **M04**: calcula intervalo entre timestamps completos de commits
+  consecutivos (não entre dias distintos). Commits no mesmo dia em
+  horários diferentes produzem intervalos fracionários, truncados para
+  dias inteiros no cálculo, o que explica valores médios baixos como
+  0,13 dia em projetos com múltiplos commits diários.
 - **M01**: desvio padrão calculado com divisor n-1 (estimador amostral).
 - **M13**: coleta os PRs merged mais recentes retornados pela API
   (ordem decrescente por criação), não uma amostra aleatória.
