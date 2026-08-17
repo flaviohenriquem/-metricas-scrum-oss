@@ -49,7 +49,7 @@ def coletar_commits_por_ano(owner, repo, ano):
             login = None
             if c.get("author") and c["author"].get("login"):
                 login = c["author"]["login"]
-            date = c["commit"]["author"]["date"][:10]
+                date = c["commit"]["author"]["date"]
             commits.append({"login": login, "date": date, "ano": ano})
         page += 1
     return commits
@@ -96,24 +96,31 @@ for label, df in todos.items():
     anual = df.groupby("ano").size()
     print(anual.to_string())
 
-# ─── M04 — Intervalo entre dias de atividade ──────────────
-# NOTA: calcula intervalo entre dias distintos com commits,
-# não entre commits individuais. Dias com múltiplos commits
-# contam como uma única ocorrência.
+# ─── M04 — Tempo médio entre commits ──────────────────────
+# NOTA: calcula intervalo entre timestamps completos de
+# commits consecutivos (ordem cronológica). Commits no mesmo
+# dia em horários distintos produzem intervalos fracionários,
+# truncados para dias inteiros (.days), o que pode resultar
+# em muitos intervalos iguais a zero.
 print("\n" + "="*50)
-print("M04 — Intervalo entre Dias de Atividade (dias)")
+print("M04 — Tempo Médio entre Commits (dias)")
 print("="*50)
 for label, df in todos.items():
     df2 = df.copy()
     df2["date"] = pd.to_datetime(df2["date"])
-    print(f"\n{label}:")
+    datas_geral = sorted(df2["date"].unique())
+    intervalos_geral = [
+        (datas_geral[i+1] - datas_geral[i]).days
+        for i in range(len(datas_geral) - 1)
+    ]
+    print(f"\n{label}: média={np.mean(intervalos_geral):.2f} dias")
     for ano, grupo in df2.groupby("ano"):
-        datas = sorted(grupo["date"].dt.date.unique())
+        datas = sorted(grupo["date"].unique())
         if len(datas) < 2:
             print(f"  {ano}: dados insuficientes")
             continue
         intervalos = [(datas[i+1] - datas[i]).days for i in range(len(datas)-1)]
-        print(f"  {ano}: {np.mean(intervalos):.2f} dias (N={len(datas)} dias ativos)")
+        print(f"  {ano}: {np.mean(intervalos):.2f} dias")
 
 # ─── M07 — Engajamento de colaboradores ───────────────────
 print("\n" + "="*50)
