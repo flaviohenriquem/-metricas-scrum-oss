@@ -85,7 +85,6 @@ COMPMAT/UERJ, 2026.
 
 ---
 
-*Nota sobre M24: a lógica de identificação de interação humana está em
-processo de revisão para garantir alinhamento entre o script publicado
-e a descrição metodológica da dissertação. Uma atualização será
-publicada assim que essa revisão for concluída.*
+- **M24**: interação humana = ao menos um comentário registrado, ou
+  evento de rotulagem/fechamento atribuído a uma conta do tipo `User`,
+  verificado nos primeiros 5 eventos da linha do tempo de cada issue.
